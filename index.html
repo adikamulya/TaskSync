@@ -369,7 +369,7 @@
     var box = $('links'); box.innerHTML = '';
     links.forEach(function (l, i) {
       var tile = document.createElement('div'); tile.className = 'tile';
-      var a = document.createElement('a'); a.href = l.u; a.target = '_blank'; a.rel = 'noopener';
+      var a = document.createElement('a'); a.href = l.u;
             var m = document.createElement('span'); m.className = 'mono';
       m.textContent = (l.n || '?').charAt(0).toUpperCase();   // cadangan: huruf awal
       try {
@@ -495,6 +495,22 @@
     });
   }
 
+    // ---------- Fokus otomatis ke kolom pencarian ----------
+  var searchBox = $('q');
+  var isTouch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  function focusSearch() { if (!isTouch) searchBox.focus(); }
+  focusSearch();
+  window.addEventListener('pageshow', focusSearch);
+  window.addEventListener('focus', focusSearch);
+
+  // Mengetik huruf di mana saja di halaman langsung masuk ke kolom pencarian
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+    var t = document.activeElement;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    searchBox.focus();
+  });
+  
   // ---------- Inisialisasi ----------
   renderLinks();
   renderTasks();
