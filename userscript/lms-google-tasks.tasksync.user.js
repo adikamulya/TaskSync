@@ -2,10 +2,8 @@
 // @name         Sinkronisasi LMS Telkom University ke Google Tasks
 // @namespace    http://tampermonkey.net/
 // @version      5.1
-// @description  Ekstrak tugas LMS Telkom University ke Google Tasks (anti-dobel, update deadline, login tahan lama, panel log) + sinkron dua arah dengan halaman beranda.
+// @description  Ekstrak tugas LMS Telkom University ke Google Tasks
 // @match        https://lms.telkomuniversity.ac.id/*
-// @match        https://celoe.telkomuniversity.ac.id/*
-// @match        https://elearning.telkomuniversity.ac.id/*
 // @match        https://adikamulya.github.io/TaskSync/*
 // @noframes
 // @grant        GM_setValue
@@ -20,7 +18,7 @@
     'use strict';
 
     // ====================== KONFIGURASI ======================
-    const CLIENT_ID = '726364730121-e0j3r3a9ugn01o23cnl6en84kedj8imb.apps.googleusercontent.com';
+    const CLIENT_ID = '';
 
     // ISI INI supaya login tidak perlu diulang tiap 1 jam (pakai Authorization Code + PKCE + refresh token).
     // Ambil dari Google Cloud Console > APIs & Services > Credentials > klik OAuth client kamu.
