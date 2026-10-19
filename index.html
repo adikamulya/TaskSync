@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Beranda Harian & Tugas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ECF0EE;
+    --surface: #F8FAF9;
+    --line: #D3DBD7;
+    --fg: #17211D;
+    --muted: #5A6861;
+    --accent: #1B7F5E;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #D6EADF;
+    --danger: #B3372B;
+
+    --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1513;
+      --surface: #171F1C;
+      --line: #27342F;
+      --fg: #E6EEEA;
+      --muted: #8FA39A;
+      --accent: #5FD3A5;
+      --accent-ink: #06251A;
+      --accent-soft: #183A2E;
+      --danger: #FF8B7D;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    overflow-y: auto;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-block: 20px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  button, input { font: inherit; color: inherit; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  svg { display: block; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 24px 32px;
+    align-items: start;
+  }
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+  /* Jam */
+  .eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+  .clock {
+    font-family: var(--font-mono);
+    font-size: clamp(48px, min(10vw, 15vh), 96px);
+    line-height: 1; letter-spacing: -0.04em; margin: 6px 0 4px; font-variant-numeric: tabular-nums;
+  }
+  .clock .sec { font-size: 0.34em; letter-spacing: 0; color: var(--muted); margin-left: 0.15em; }
+  .date { margin: 0; font-family: var(--font-display); font-size: clamp(17px, 2.4vw, 22px); font-weight: 500; }
+
+  .search { display: flex; gap: 8px; margin-top: 14px; }
+  .search input { flex: 1; min-width: 0; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+  .search input::placeholder { color: var(--muted); }
+  .icon-btn {
+    flex: none; width: 44px; display: grid; place-items: center; cursor: pointer;
+    border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  }
+  .icon-btn.ghost { background: transparent; color: var(--muted); border-color: transparent; width: 32px; height: 32px; }
+  .icon-btn.ghost:hover { color: var(--fg); border-color: var(--line); }
+  .btn {
+    padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px;
+    background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent);
+  }
+
+  /* Pintasan */
+  .sec-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+  h2 { margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+  .links { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .tile { position: relative; min-width: 0; }
+  .tile a {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px; text-decoration: none;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  }
+  .tile a:hover { border-color: var(--accent); }
+  .mono {
+    flex: none; width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 14px;
+  }
+  .tile .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; font-size: 14px; }
+  .tile .del {
+    display: none; position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%;
+    cursor: pointer; line-height: 1; background: var(--danger); color: var(--surface); border: 0; font-weight: 700;
+  }
+  .editing .tile .del { display: block; }
+  .editing .tile a { pointer-events: none; }
+  .add-form { display: none; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .editing .add-form { display: flex; }
+  .add-form input { flex: 1 1 130px; min-width: 0; padding: 8px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }
+  .form-msg { margin: 6px 0 0; font-size: 13px; color: var(--danger); min-height: 1.4em; }
+
+  /* Kartu kanan & Tugas */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .card .sec-head { margin-bottom: 8px; }
+  .where { font-size: 13px; color: var(--muted); }
+  .prayers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .prayers li { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 6px 10px; border-radius: 6px; }
+  .prayers .t { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .prayers li.passed { color: var(--muted); }
+  .prayers li.next { background: var(--accent-soft); color: var(--fg); font-weight: 600; }
+  .prayers li.sunrise .n { font-style: italic; }
+  .next-line { margin: 8px 2px 0; font-size: 13px; color: var(--muted); }
+  .next-line b { color: var(--accent); font-family: var(--font-mono); font-weight: 500; }
+
+  .wx-main { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .wx-temp { font-family: var(--font-display); font-size: 36px; font-weight: 700; line-height: 1; }
+  .wx-desc { font-weight: 500; }
+  .wx-meta { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+  .wx-fail { margin: 0; font-size: 13px; color: var(--muted); }
+  .wx-fail a { color: var(--accent); }
+
+  /* Widget Tugas */
+  .task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+  .task-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+  .task-item.completed span { text-decoration: line-through; color: var(--muted); }
+  .task-item .task-info { display: flex; flex-direction: column; min-width: 0; }
+  .task-item .task-title { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .task-item .task-date { font-size: 11px; color: var(--muted); }
+  .task-actions { display: flex; gap: 4px; align-items: center; }
+  .task-actions button { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 2px 4px; border-radius: 4px; }
+  .task-actions button:hover { color: var(--fg); }
+  .empty-tasks { text-align: center; color: var(--muted); font-size: 13px; padding: 12px 0; margin: 0; }
+
+  @media (max-width: 820px) {
+    body { padding-block: 14px; }
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .clock { font-size: clamp(40px, min(15vw, 8vh), 72px); }
+    .links { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .tile a { flex-direction: column; gap: 4px; padding: 8px 4px; text-align: center; }
+    .prayers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; }
+    .prayers li { flex-direction: column; align-items: center; gap: 0; padding: 6px 0; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <div class="layout">
+    <div class="col">
+      <header>
+        <p class="eyebrow" id="greet">Selamat datang</p>
+        <div class="clock" aria-label="Jam sekarang"><span id="hm">--:--</span><span class="sec" id="sec">:--</span></div>
+        <p class="date" id="date"></p>
+        <form class="search" id="searchForm" role="search">
+          <label class="sr-only" for="q">Cari di Google</label>
+          <input id="q" type="search" placeholder="Cari di Google..." autocomplete="off">
+          <button class="icon-btn" type="submit" aria-label="Cari">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          </button>
+        </form>
+        <a id="go" href="#" target="_blank" rel="noopener" hidden>cari</a>
+      </header>
+
+      <!-- Pintasan -->
+      <section id="linksSection">
+        <div class="sec-head">
+          <h2>Pintasan</h2>
+          <button class="icon-btn ghost" id="editLinks" type="button" aria-label="Ubah pintasan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>
+          </button>
+        </div>
+        <div class="links" id="links"></div>
+        <form class="add-form" id="addForm">
+          <label class="sr-only" for="newName">Nama pintasan</label>
+          <input id="newName" placeholder="Nama" maxlength="24" autocomplete="off">
+          <label class="sr-only" for="newUrl">Alamat situs</label>
+          <input id="newUrl" placeholder="contoh: github.com" autocomplete="off">
+          <button class="btn" type="submit">Tambah</button>
+        </form>
+        <p class="form-msg" id="formMsg" role="status"></p>
+      </section>
+
+      <!-- Widget Tugas & Automasi Skrip -->
+      <section class="card" aria-labelledby="hTasks">
+        <div class="sec-head">
+          <h2 id="hTasks">Tugas & Akademik</h2>
+        </div>
+        <ul class="task-list" id="taskList"></ul>
+      </section>
+    </div>
+
+    <div class="col">
+      <!-- Waktu Salat -->
+      <section class="card" aria-labelledby="hPrayer">
+        <div class="sec-head">
+          <h2 id="hPrayer">Waktu Sholat</h2>
+          <span class="where" id="where">Bandung</span>
+        </div>
+        <ul class="prayers" id="prayers"></ul>
+        <p class="next-line" id="nextLine"></p>
+      </section>
+
+      <!-- Cuaca -->
+      <section class="card" aria-labelledby="hWx">
+        <div class="sec-head"><h2 id="hWx">Cuaca</h2></div>
+        <div id="wx"><p class="wx-fail">Memuat cuaca...</p></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  function load(key, fallback) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* diabaikan */ }
+  }
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+
+  // ---------- Lokasi ----------
+  var CITIES = [
+    { n: 'Bandung', lat: -6.9175, lon: 107.6191 },
+    { n: 'Jakarta', lat: -6.2088, lon: 106.8456 },
+    { n: 'Surabaya', lat: -7.2575, lon: 112.7521 },
+    { n: 'Yogyakarta', lat: -7.7956, lon: 110.3695 }
+  ];
+  function distKm(a, b, c, d) {
+    var R = 6371, dLat = (c - a) * Math.PI / 180, dLon = (d - b) * Math.PI / 180;
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a * Math.PI / 180) * Math.cos(c * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  function placeName(lat, lon) {
+    var best = null, bd = Infinity;
+    CITIES.forEach(function (c) { var d = distKm(lat, lon, c.lat, c.lon); if (d < bd) { bd = d; best = c; } });
+    return bd <= 60 ? best.n : 'Lokasi saat ini';
+  }
+  var place = load('beranda.place', { lat: -6.9175, lon: 107.6191, n: 'Bandung' });
+
+  // ---------- Salat ----------
+  var RAD = Math.PI / 180;
+  function sinD(a) { return Math.sin(a * RAD); }
+  function cosD(a) { return Math.cos(a * RAD); }
+  function fixAngle(a) { return a - 360 * Math.floor(a / 360); }
+  function fixHour(h) { return h - 24 * Math.floor(h / 24); }
+
+  function prayerTimes(y, m, d, lat, lon) {
+    var jd = Date.UTC(y, m, d, 12) / 86400000 + 2440587.5;
+    var n = jd - 2451545.0;
+    var g = fixAngle(357.529 + 0.98560028 * n);
+    var q = fixAngle(280.459 + 0.98564736 * n);
+    var L = fixAngle(q + 1.915 * sinD(g) + 0.020 * sinD(2 * g));
+    var e = 23.439 - 0.00000036 * n;
+    var ra = fixHour(Math.atan2(cosD(e) * sinD(L), cosD(L)) / RAD / 15);
+    var eqt = ((q / 15 - ra + 12) % 24 + 24) % 24 - 12;
+    var decl = Math.asin(sinD(e) * sinD(L)) / RAD;
+
+    var dhuhr = 12 - lon / 15 - eqt;
+    function hourAngle(angle) {
+      var x = (-sinD(angle) - sinD(decl) * sinD(lat)) / (cosD(decl) * cosD(lat));
+      return Math.acos(Math.max(-1, Math.min(1, x))) / RAD / 15;
+    }
+    var asrAngle = -Math.atan(1 / (1 + Math.tan(Math.abs(lat - decl) * RAD))) / RAD;
+    var ih = 2 / 60;
+    var base = Date.UTC(y, m, d);
+    function at(h) { return new Date(base + h * 3600000); }
+    return [
+      { k: 'subuh', n: 'Subuh', t: at(dhuhr - hourAngle(20) + ih) },
+      { k: 'terbit', n: 'Terbit', t: at(dhuhr - hourAngle(0.833)) },
+      { k: 'dzuhur', n: 'Dzuhur', t: at(dhuhr + ih) },
+      { k: 'ashar', n: 'Ashar', t: at(dhuhr + hourAngle(asrAngle) + ih) },
+      { k: 'maghrib', n: 'Maghrib', t: at(dhuhr + hourAngle(0.833) + ih) },
+      { k: 'isya', n: 'Isya', t: at(dhuhr + hourAngle(18) + ih) }
+    ];
+  }
+
+  function hm(date) { return pad(date.getHours()) + ':' + pad(date.getMinutes()); }
+  function dayTimes(date) { return prayerTimes(date.getFullYear(), date.getMonth(), date.getDate(), place.lat, place.lon); }
+
+  function renderPrayers(now) {
+    $('where').textContent = place.n;
+    var today = dayTimes(now);
+    var wajib = today.filter(function (p) { return p.k !== 'terbit'; });
+    var next = null;
+    for (var i = 0; i < wajib.length; i++) if (wajib[i].t > now) { next = wajib[i]; break; }
+    if (!next) {
+      var tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      next = dayTimes(tomorrow)[0];
+    }
+    var html = '';
+    today.forEach(function (p) {
+      var cls = [];
+      if (p.k === 'terbit') cls.push('sunrise');
+      if (p.t <= now) cls.push('passed');
+      if (p.k === next.k && p.t.getTime() === next.t.getTime()) cls.push('next');
+      html += '<li class="' + cls.join(' ') + '"><span class="n">' + p.n + '</span><span class="t">' + hm(p.t) + '</span></li>';
+    });
+    $('prayers').innerHTML = html;
+
+    var diff = Math.max(0, Math.round((next.t - now) / 60000));
+    var h = Math.floor(diff / 60), mnt = diff % 60;
+    var left = (h ? h + ' jam ' : '') + mnt + ' menit';
+    $('nextLine').innerHTML = 'Berikutnya ' + next.n + ' pukul ' + hm(next.t) + ', <b>' + left + '</b> lagi.';
+  }
+
+  // ---------- Jam ----------
+  var DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  var MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  var lastMinute = -1;
+
+  function tick() {
+    var now = new Date();
+    $('hm').textContent = pad(now.getHours()) + ':' + pad(now.getMinutes());
+    $('sec').textContent = ':' + pad(now.getSeconds());
+    if (now.getMinutes() !== lastMinute) {
+      lastMinute = now.getMinutes();
+      var hr = now.getHours();
+      var s = hr >= 4 && hr < 11 ? 'pagi' : hr < 15 && hr >= 11 ? 'siang' : hr >= 15 && hr < 18 ? 'sore' : 'malam';
+      $('greet').textContent = 'Selamat ' + s;
+      $('date').textContent = DAYS[now.getDay()] + ', ' + now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+      renderPrayers(now);
+    }
+  }
+
+  // ---------- Pencarian ----------
+  $('searchForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var q = $('q').value.trim();
+    if (!q) return;
+    var a = $('go');
+    a.href = 'https://www.google.com/search?q=' + encodeURIComponent(q);
+    a.click();
+  });
+
+  // ---------- Pintasan ----------
+  var DEFAULT_LINKS = [
+    { n: 'LMS Telkom', u: 'https://lms.telkomuniversity.ac.id/' },
+    { n: 'Tasks', u: 'https://tasks.google.com/' },
+    { n: 'Kalender', u: 'https://calendar.google.com/' },
+    { n: 'Gmail', u: 'https://mail.google.com/' },
+    { n: 'GitHub', u: 'https://github.com/' },
+    { n: 'YouTube', u: 'https://www.youtube.com/' }
+  ];
+  var links = load('beranda.links', DEFAULT_LINKS);
+
+  function renderLinks() {
+    var box = $('links'); box.innerHTML = '';
+    links.forEach(function (l, i) {
+      var tile = document.createElement('div'); tile.className = 'tile';
+      var a = document.createElement('a'); a.href = l.u; a.target = '_blank'; a.rel = 'noopener';
+      var m = document.createElement('span'); m.className = 'mono'; m.textContent = (l.n || '?').charAt(0).toUpperCase();
+      var nm = document.createElement('span'); nm.className = 'name'; nm.textContent = l.n;
+      a.append(m, nm);
+      var del = document.createElement('button'); del.type = 'button'; del.className = 'del';
+      del.setAttribute('aria-label', 'Hapus pintasan ' + l.n); del.textContent = '×';
+      del.addEventListener('click', function () { links.splice(i, 1); save('beranda.links', links); renderLinks(); });
+      tile.append(a, del); box.appendChild(tile);
+    });
+  }
+  $('editLinks').addEventListener('click', function () {
+    var on = $('linksSection').classList.toggle('editing');
+    this.setAttribute('aria-label', on ? 'Selesai' : 'Ubah pintasan');
+  });
+  $('addForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('newName').value.trim(), url = $('newUrl').value.trim();
+    if (!name || !url) return;
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    links.push({ n: name, u: url });
+    save('beranda.links', links);
+    $('newName').value = ''; $('newUrl').value = '';
+    renderLinks();
+  });
+
+  // ---------- Tugas & Automasi ----------
+  var tasks = load('beranda.tasks', []);
+
+  // Beri tahu userscript (sinkron Google Tasks) bahwa tugas berubah dari halaman ini
+  function notifyTasksChanged() {
+    try { window.dispatchEvent(new Event('beranda:tasks-changed')); } catch (e) { /* diabaikan */ }
+  }
+
+  // Userscript selesai menarik data dari Google Tasks: muat ulang daftar
+  window.addEventListener('beranda:tasks-updated', function () {
+    tasks = load('beranda.tasks', []);
+    renderTasks();
+  });
+
+  function renderTasks() {
+    var list = $('taskList'); list.innerHTML = '';
+
+    if (tasks.length === 0) {
+      list.innerHTML = '<p class="empty-tasks">Tidak ada tugas aktif 🎉</p>';
+      return;
+    }
+
+    tasks.forEach(function (t, i) {
+      var li = document.createElement('li');
+      li.className = 'task-item' + (t.status === 'completed' ? ' completed' : '');
+      
+      var info = document.createElement('div');
+      info.className = 'task-info';
+      var title = document.createElement('span');
+      title.className = 'task-title';
+      title.textContent = t.title;
+      var date = document.createElement('span');
+      date.className = 'task-date';
+      date.textContent = t.date || 'Tugas';
+      info.append(title, date);
+
+      var actions = document.createElement('div');
+      actions.className = 'task-actions';
+      
+      var checkBtn = document.createElement('button');
+      checkBtn.innerHTML = t.status === 'completed' ? '↩' : '✓';
+      checkBtn.addEventListener('click', function () {
+        tasks[i].status = tasks[i].status === 'completed' ? 'pending' : 'completed';
+        save('beranda.tasks', tasks); notifyTasksChanged();
+        renderTasks();
+      });
+
+      var delBtn = document.createElement('button');
+      delBtn.innerHTML = '✕';
+      delBtn.addEventListener('click', function () {
+        tasks.splice(i, 1);
+        save('beranda.tasks', tasks); notifyTasksChanged();
+        renderTasks();
+      });
+
+      actions.append(checkBtn, delBtn);
+      li.append(info, actions);
+      list.appendChild(li);
+    });
+  }
+
+  // Listener perubahan dari Tampermonkey / Tab lain
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'beranda.tasks') {
+      tasks = load('beranda.tasks', []);
+      renderTasks();
+    }
+  });
+
+  // ---------- Cuaca ----------
+  var WX = {
+    0: 'Cerah', 1: 'Cerah berawan', 2: 'Berawan sebagian', 3: 'Mendung',
+    45: 'Berkabut', 51: 'Gerimis', 61: 'Hujan ringan', 63: 'Hujan', 65: 'Hujan lebat', 95: 'Badai petir'
+  };
+  function loadWeather() {
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + place.lat.toFixed(4) + '&longitude=' + place.lon.toFixed(4) +
+      '&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code' +
+      '&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1';
+    fetch(url).then(function (r) { return r.json(); }).then(function (j) {
+      var cur = j.current, d = j.daily;
+      $('wx').innerHTML =
+        '<div class="wx-main"><span class="wx-temp">' + Math.round(cur.temperature_2m) + '°</span>' +
+        '<span class="wx-desc">' + (WX[cur.weather_code] || 'Cuaca') + ' di ' + place.n + '</span></div>' +
+        '<p class="wx-meta">Terasa ' + Math.round(cur.apparent_temperature) + '° · Lembap ' + cur.relative_humidity_2m + '% · Hujan ' +
+        (d.precipitation_probability_max[0] == null ? '-' : d.precipitation_probability_max[0] + '%') + '</p>';
+    }).catch(function () {
+      $('wx').innerHTML = '<p class="wx-fail">Gagal memuat cuaca.</p>';
+    });
+  }
+
+  // ---------- Inisialisasi ----------
+  renderLinks();
+  renderTasks();
+  tick();
+  setInterval(tick, 1000);
+  loadWeather();
+})();
+</script>
+</body>
+</html>
