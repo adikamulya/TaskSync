@@ -105,6 +105,8 @@
     flex: none; width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center;
     background: var(--accent-soft); color: var(--accent); font-family: var(--font-display); font-weight: 700; font-size: 14px;
   }
+  .mono.has-icon { background: #fff; border: 1px solid var(--line); }
+  .mono img { width: 18px; height: 18px; border-radius: 3px; }
   .tile .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; font-size: 14px; }
   .tile .del {
     display: none; position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%;
@@ -368,7 +370,18 @@
     links.forEach(function (l, i) {
       var tile = document.createElement('div'); tile.className = 'tile';
       var a = document.createElement('a'); a.href = l.u; a.target = '_blank'; a.rel = 'noopener';
-      var m = document.createElement('span'); m.className = 'mono'; m.textContent = (l.n || '?').charAt(0).toUpperCase();
+            var m = document.createElement('span'); m.className = 'mono';
+      m.textContent = (l.n || '?').charAt(0).toUpperCase();   // cadangan: huruf awal
+      try {
+        var img = new Image();
+        img.alt = '';
+        img.onload = function () {                              // ganti huruf dengan logo kalau berhasil dimuat
+          m.textContent = '';
+          m.classList.add('has-icon');
+          m.appendChild(img);
+        };
+        img.src = 'https://www.google.com/s2/favicons?sz=64&domain=' + encodeURIComponent(new URL(l.u).hostname);
+      } catch (e) { /* URL tidak valid: tetap pakai huruf */ }
       var nm = document.createElement('span'); nm.className = 'name'; nm.textContent = l.n;
       a.append(m, nm);
       var del = document.createElement('button'); del.type = 'button'; del.className = 'del';
