@@ -351,7 +351,7 @@
     e.preventDefault();
     var q = $('q').value.trim();
     if (!q) return;
-    window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(q);
+    window.top.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(q);
   });
 
   // ---------- Pintasan ----------
@@ -369,7 +369,7 @@
     var box = $('links'); box.innerHTML = '';
     links.forEach(function (l, i) {
       var tile = document.createElement('div'); tile.className = 'tile';
-      var a = document.createElement('a'); a.href = l.u;
+        var a = document.createElement('a'); a.href = l.u; a.target = '_top';
             var m = document.createElement('span'); m.className = 'mono';
       m.textContent = (l.n || '?').charAt(0).toUpperCase();   // cadangan: huruf awal
       try {
