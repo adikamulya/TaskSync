@@ -344,14 +344,12 @@
     }
   }
 
-  // ---------- Pencarian ----------
+    // ---------- Pencarian ----------
   $('searchForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var q = $('q').value.trim();
     if (!q) return;
-    var a = $('go');
-    a.href = 'https://www.google.com/search?q=' + encodeURIComponent(q);
-    a.click();
+    window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(q);
   });
 
   // ---------- Pintasan ----------
